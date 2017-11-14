@@ -1,0 +1,80 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chat App</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <style>
+        #messages{
+            min-height:300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-md-3 col-sm-12">
+                <h1 class="text-center">
+                    MongoChat
+                    <button class="btn btn-danger" id="btnClear">Clear</button>
+                </h1>
+                <div id="status"></div>
+                <div id="chat">
+                    <input type="text" id="username" class="form-control" placeholder="Enter name...">
+                    <br>
+                    <div class="card">
+                        <div class="card-block" id="messages"></div>
+                    </div>
+                    <br>
+                    <textarea name="message" id="text-area" cols="30" rows="1" class="form-control" placeholder="Enter Chat Message...">
+
+                    </textarea>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <script>
+        (function(){
+            var element = function(id){
+                return document.getElementById(id);
+            }
+
+            var status   = element('status');
+            var messages = element('messages');
+            var textarea = element('message')
+            var username = element('username');
+            var btnClear = element('btnClear');
+            
+            var setStatus = function(s){
+                status.textContent = s;
+
+                if(s !== ''){
+                    var delay = setTimeout(function(){
+                        setStatus('');
+                    },4000)
+                }
+            }
+
+            var socket = io.connect('http://127.0.0.1:4000')
+
+            if(socket !== undefined){
+                console.log('Connected to socket.io')
+
+                socket.on('output', function(data){
+                    if(data.length){
+                        for(var x = 0;x < data.length; x++){
+                            var message = document.createElement('div');
+                            message.setAttribute('class','chat-message');
+                            message.textContent = data[x].name + " : " + data[x].message;
+                            messages.appendChild(message);
+                            messages.insertBefore(message,messages.firstChild)
+                        }
+                    }
+                })
+            }
+
+        })();
+    </script>
+</body>
+</html>
