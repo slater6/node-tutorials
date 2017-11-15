@@ -26,7 +26,10 @@ mongo.connect('mongodb://slater:nirvana@ds259085.mlab.com:59085/chat-app', funct
             let message = data.message;
             
             if(name == '' || message == ''){
-                sendStatus('Please enter a name and message');
+                sendStatus({
+                    message : 'Please enter a name and message',
+                    clear : false
+                });
                 return;
             }
 

@@ -27,7 +27,7 @@
                         <div class="card-block" id="messages"></div>
                     </div>
                     <br>
-                    <textarea name="message" id="text-area" cols="30" rows="1" class="form-control" placeholder="Enter Chat Message...">
+                    <textarea name="message" id="message" cols="30" rows="3" class="form-control" placeholder="Enter Chat Message...">
 
                     </textarea>
             </div>
@@ -72,6 +72,40 @@
                         }
                     }
                 })
+
+                socket.on('status', function(data){
+                    setStatus(data.message)
+
+                    if(data.clear){
+                        textarea.value = '';
+                    }
+                })
+
+                socket.on('cleared', function(){
+                    messages.textContent = '';   
+                })
+
+                textarea.addEventListener('keydown', function(event){
+                    
+                    if(event.which === 13 && event.shiftKey == false){
+                        
+                        socket.emit('input',{
+                            name:username.value,
+                            message:textarea.value
+                        })
+
+                        textarea.textContent = '';
+
+                        event.preventDefault();
+                    }
+                })
+
+                btnClear.addEventListener('click',function(){
+                    console.log('Clear Chat')
+                    socket.emit('clear')
+                    textarea.textContent = '';
+                })
+
             }
 
         })();
