@@ -2,6 +2,20 @@
 
 module.exports = function(Product){
 
+    Product.observe('before save', function (ctx,next){
+        if(ctx.instance && ctx.instance.categoryId){
+            return Product.app.models.Category
+            .count({ id: ctx.instance.categoryId})
+            .then( res => {
+                if( res < 1){
+                    return Promise.reject('Error adding product to non-existing category')
+                }
+            })
+        }
+
+        return next()
+    })
+
   const validQuantity = quantity => Boolean(quantity > 0);
     /**
     * Buy this product
@@ -16,7 +30,7 @@ module.exports = function(Product){
     }
 
     const results = {
-        status: `You bought ${quantity} products(s)`,
+        status: `You bought ${quantity} product(s)`,
     };
     // TODO
     callback(null, results);
