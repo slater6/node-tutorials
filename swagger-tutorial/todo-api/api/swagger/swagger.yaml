@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: Todo Api
 # during dev, should point to your local machine
 host: localhost:10010
 # basePath prefixes all resource paths 
@@ -18,43 +18,113 @@ consumes:
 produces:
   - application/json
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
+  /:
     get:
-      description: Returns 'Hello' to the caller
-      # used as the method name of the controller
-      operationId: hello
-      parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
+      description: "This endpoint returns all todos available in the database"
+      operationId: "GetAllTodos"
+      parameters: []
       responses:
-        "200":
-          description: Success
+        200: 
+          description: "An array of todos"
           schema:
-            # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
-        # responses may fall through to errors
-        default:
-          description: Error
+            type: "array"
+            items:
+              $ref: "#/definitions/Todo"
+      x-swagger-router-controller: "GetAllTodos"
+    post: 
+      description: "Add  new Todo"
+      operationId: "AddTodo"
+      produces: 
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "todo"
+        description: "the Todo to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/Todo"
+      responses:
+        200:
+          description: "Sucessful Todo add"
+      x-swagger-router-controller: "AddTodo"
+  /todo/{id}:
+    get:
+      description: "Retrieve a single todo by id"
+      operationId: "FindTodoById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the todo to get"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Todo Response"
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: "#/definitions/Todo"
+      x-swagger-router-controller: "FindTodoById"
+    delete:
+      description: "Delete todo by id"
+      operationId: "DeleteTodoById"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the todo to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        204:
+          description: "TodoDeleted"
+      x-swagger-router-controller: "DeleteTodoById"
+    put:
+      description: "Update a single todo by id"
+      operationId: "UpdateTodoById"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the todo to be updated"
+        required: true
+        type: "integer"
+        format: "int64"
+      - name: "updated_todo"
+        in: "body"
+        description: "Updated todo"
+        required: true
+        schema: 
+          $ref: "#/definitions/Todo"
+      responses:
+        200:
+          description: "Todo Updated"
+        400:
+          description: "Todo not updated"
+      x-swagger-router-controller: "DeleteTodoById"
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  HelloWorldResponse:
-    required:
-      - message
+  Todo:
+    type: "object"
     properties:
-      message:
-        type: string
-  ErrorResponse:
-    required:
-      - message
-    properties:
-      message:
-        type: string
+      todo_id:
+        type: "integer"
+        description: "Id for the todo"
+      todo:
+        type: "string"
+        description: "The todo item"
+      datecreated:
+        type: "string"
+        format: "date-time"
+        description: "Timestamp when the Todo was created. Set by server"
+      author: 
+        type: "string"
+        description: "Creator or owner of the todo"
+      duedate: 
+        type: "string"
+        description: "When the todo is due"
+      completed:
+        type: "boolean"
+        description: "Indicates if the todo has ben completed or not"
